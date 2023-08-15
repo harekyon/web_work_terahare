@@ -2,7 +2,7 @@
 
 // basis
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 // extension lib
 import * as Stats from "stats-js";
@@ -34,6 +34,7 @@ export default function Home() {
   //objs: returnHoverObj関数で使用。hoverしたMeshを返してくれる
   const objs = useRef("");
   useEffect(() => {
+    const cursor = document.getElementById("cursor");
     let stats = initStats();
     let scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x000000, 50, 2000);
@@ -456,7 +457,11 @@ export default function Home() {
       }
     }
 
-    window.addEventListener("mousemove", returnHoverObj);
+    window.addEventListener("mousemove", mouseMoveFunc);
+    function mouseMoveFunc(e) {
+      returnHoverObj(e);
+      cursorControl(e);
+    }
     function returnHoverObj(e) {
       let mouseX =
         ((e.offsetX - window.innerWidth / 2) / window.innerWidth) * 2;
@@ -470,11 +475,16 @@ export default function Home() {
       );
       objs.current = ray.intersectObjects(scene.children);
     }
+    function cursorControl(e) {
+      // console.log(e.clientX);
+      cursor.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
+    }
   }, []);
   return (
     <>
       <div id="Stats-output"></div>
       <div id="WebGL-output"></div>
+      <div id="cursor" className="cursor"></div>
     </>
   );
 }

@@ -16,7 +16,14 @@
   }
 }
 
+html,
+body,
+a {
+  cursor: none;
+}
+
 body {
+  position: relative;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -24,6 +31,19 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+.cursor {
+  width: 30px;
+  height: 30px;
+  border-radius: 100%;
+  // background: red;
+  background-image: url("/cursor.png");
+  background-size: contain;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100000;
+  pointer-events: none;
 }
 
 .simple-annotation--wrap {
