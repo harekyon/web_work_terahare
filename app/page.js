@@ -1,8 +1,11 @@
 "use client";
 
+//scss
+import variable from "../styles/_var.module.scss";
+
 // basis
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 // extension lib
 import * as Stats from "stats-js";
@@ -22,32 +25,38 @@ import { textToTextureConvertReturnMesh } from "/Modules/tools.js";
 import { cameraControler } from "@/Modules/cameraControler.js";
 import { exportGltf } from "@/Modules/tools.js";
 import { simpleAnnotation } from "@/Modules/annotation.js";
-import * as Tools from "../Modules/tools";
+import * as Tools from "../Modules/tools.js";
+import { gsap } from "gsap";
+
+// import styles from "./ExtractPzlData.module.scss";
 
 const mode = "";
 
-export default function Home() {
+export default function Page() {
   const sel = useRef("aaa");
   const loader = new GLTFLoader();
   const dracoLoader = new DRACOLoader();
   loader.setDRACOLoader(dracoLoader);
   //objs: returnHoverObj関数で使用。hoverしたMeshを返してくれる
   const objs = useRef("");
+  const [section, setSection] = useState(0);
+  let camera = new THREE.PerspectiveCamera();
   useEffect(() => {
     const cursor = document.getElementById("cursor");
     let stats = initStats();
     let scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x000000, 50, 2000);
-    let camera = new THREE.PerspectiveCamera(
-      45,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
-    camera.position.x = -30;
-    camera.position.y = 60;
-    camera.position.z = 10;
-    camera.lookAt(scene.position);
+
+    camera.fov = 45;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.near = 0.1;
+    camera.far = 1000;
+
+    camera.position.x = -0;
+    camera.position.y = 9;
+    camera.position.z = 65;
+    // camera.lookAt(scene.position);
+    // camera.lookAt(chairWhite);
     scene.add(camera);
 
     let renderer = new THREE.WebGLRenderer();
@@ -89,20 +98,6 @@ export default function Home() {
     Tools.autoInitTexture(floorTex.texNormal);
     Tools.autoInitTexture(floorTex.texRough);
 
-    let wallTex = {
-      texDiff: textureLoader.load(
-        "/leather_white_2k/textures/leather_white_diff_2k.jpg"
-      ),
-      texAo: textureLoader.load(
-        "/leather_white_2k/textures/leather_white_ao_2k.jpg"
-      ),
-      texNormal: textureLoader.load(
-        "/leather_white_2k/textures/leather_white_nor_gl_2k.jpg"
-      ),
-      texRough: textureLoader.load(
-        "/leather_white_2k/textures/leather_white_rough_2k.jpg"
-      ),
-    };
     let floorMaterials = new THREE.MeshStandardMaterial({
       map: floorTex.texDiff,
       normalMap: floorTex.texNormal,
@@ -111,19 +106,12 @@ export default function Home() {
       displacementMap: floorTex.texDisp,
       roughnessMap: floorTex.texRough,
     });
-    let wallMaterials = new THREE.MeshStandardMaterial({
-      map: wallTex.texDiff,
-      normalMap: wallTex.texNormal,
-      normalScale: new THREE.Vector2(1, -1),
-      aoMap: wallTex.texAo,
-      roughnessMap: wallTex.texRough,
-    });
 
     let floor = new THREE.Mesh(planeGeometry, floorMaterials);
     floor.receiveShadow = true;
     floor.rotation.x = -0.5 * Math.PI;
     floor.position.x = 0;
-    floor.position.y = 0;
+    floor.position.y = -10;
     floor.position.z = 0;
     floor.name = "floor";
     floor.castShadow = true;
@@ -202,6 +190,7 @@ export default function Home() {
     chairWhite.rotation.y = calcRadian(85);
     chairWhite.position.set(0, -0.4, 7);
     chairWhite.scale.set(1.1, 1.1, 1.1);
+    // camera.lookAt(chairWhite);
 
     let hdrObj = new RGBELoader().load(
       // `${mode === "PRODUCT" ? "/threePractice/hdr.hdr" : "/hdr.hdr"}`,
@@ -268,13 +257,14 @@ export default function Home() {
     folder.addColor(controls, "myColor");
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
-    render();
     /** =================================================
      *
      * render
      * 
     ===================================================*/
+    render();
     function render() {
+      // console.log(camera.up);
       stats.update();
       orbitControl.instance.update(orbitControler.delta);
       plane.update(Date.now());
@@ -310,16 +300,18 @@ export default function Home() {
       renderer.render(scene, camera);
     }
 
+    /** =================================================
+     *
+     * event
+     * 
+    ===================================================*/
     window.addEventListener("click", onPointerMove);
-
     window.addEventListener("resize", onResize, false);
-
     function onResize() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
-
     function onPointerMove(e) {
       const raycaster = new THREE.Raycaster();
       const vector = new THREE.Vector2(
@@ -364,7 +356,7 @@ export default function Home() {
     ===================================================*/
     window.addEventListener("mousemove", mouseMoveFunc);
     function mouseMoveFunc(e) {
-      returnHoverObj(e);
+      // returnHoverObj(e);
       cursorControl(e);
     }
     function returnHoverObj(e) {
@@ -381,11 +373,40 @@ export default function Home() {
       objs.current = ray.intersectObjects(scene.children);
     }
     function cursorControl(e) {
-      cursor.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
+      cursor.style.transform = `translate(calc(${e.clientX}px - 15px), calc(${e.clientY}px - 15px))`;
     }
   }, []);
+  const errorTransition = () => {
+    return (
+      <>
+        <div className="error-transition"></div>
+      </>
+    );
+  };
   return (
     <>
+      <div id="section0" className="welcome-section">
+        <button
+          onClick={() => {
+            gsap.to(camera.position, { y: 100, duration: 5 });
+            // camera.lookAt(chairWhite);
+            const sectionDom = document.getElementById("section0");
+            setSection(1);
+            sectionDom.classList.add("fadeout");
+            setTimeout(() => {
+              sectionDom.style.display = "none";
+            }, 1000);
+          }}
+          className="welcome-section__start"
+        >
+          START
+        </button>
+      </div>
+      <div
+        id="errorTransitionSection"
+        className="error-transition-section"
+      ></div>
+
       <div id="Stats-output"></div>
       <div id="WebGL-output"></div>
       <div id="cursor" className="cursor"></div>
