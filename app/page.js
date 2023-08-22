@@ -190,49 +190,18 @@ export default function Home() {
     book2.name = "bluebook";
     scene.add(book2);
 
-    const chairWhite = [];
-    for (let n = 0; n < 3; n++) {
-      // chairWhite[n] = exportGltf({ glbPath: "/cheir_white.glb" });
-      chairWhite[n] = exportGltf({
-        glbPath:
-          mode === "PRODUCT"
-            ? "/threePractice/cheir_white.glb"
-            : "/cheir_white.glb",
-      });
-      chairWhite[n].receiveShadow = true;
-      scene.add(chairWhite[n]);
-    }
-    const chairBlack = [];
-    for (let n = 0; n < 3; n++) {
-      // chairBlack[n] = exportGltf({ glbPath: "/cheir_black.glb" });
-      chairBlack[n] = exportGltf({
-        glbPath:
-          mode === "PRODUCT"
-            ? "/threePractice/cheir_black.glb"
-            : "/cheir_black.glb",
-      });
-      chairBlack[n].receiveShadow = true;
-      scene.add(chairBlack[n]);
-    }
-    chairWhite[0].rotation.y = calcRadian(85);
-    chairWhite[0].position.set(0, -0.4, 7);
-    chairWhite[0].scale.set(1.1, 1.1, 1.1);
-    chairBlack[0].rotation.y = calcRadian(95);
-    chairBlack[0].position.set(-9, -0.4, 6.5);
-    chairBlack[0].scale.set(1.1, 1.1, 1.1);
-    chairBlack[1].rotation.y = calcRadian(80);
-    chairBlack[1].position.set(9, -0.4, 6);
-    chairBlack[1].scale.set(1.1, 1.1, 1.1);
+    const chairWhite = exportGltf({
+      glbPath:
+        mode === "PRODUCT"
+          ? "/threePractice/cheir_white.glb"
+          : "/cheir_white.glb",
+    });
+    chairWhite.receiveShadow = true;
+    scene.add(chairWhite);
 
-    chairBlack[2].rotation.y = calcRadian(-93);
-    chairBlack[2].position.set(0, -0.4, -7);
-    chairBlack[2].scale.set(1.1, 1.1, 1.1);
-    chairWhite[1].rotation.y = calcRadian(-95);
-    chairWhite[1].position.set(-9, -0.4, -7);
-    chairWhite[1].scale.set(1.1, 1.1, 1.1);
-    chairWhite[2].rotation.y = calcRadian(-90);
-    chairWhite[2].position.set(9, -0.4, -7);
-    chairWhite[2].scale.set(1.1, 1.1, 1.1);
+    chairWhite.rotation.y = calcRadian(85);
+    chairWhite.position.set(0, -0.4, 7);
+    chairWhite.scale.set(1.1, 1.1, 1.1);
 
     let hdrObj = new RGBELoader().load(
       // `${mode === "PRODUCT" ? "/threePractice/hdr.hdr" : "/hdr.hdr"}`,
@@ -248,7 +217,6 @@ export default function Home() {
         scene.environment = aaaa; // 解像度の低いテクスチャを使用
       }
     );
-    console.log(hdrObj);
 
     let RoomLightArray = [];
     for (let n = 0; n < 6; n++) {
@@ -265,7 +233,6 @@ export default function Home() {
     scene.add(ambientLight);
 
     let pointLights = [];
-    let pointLightsHelpers = [];
     for (let n = 0; n < 6; n++) {
       pointLights.push(new THREE.SpotLight(0x887788));
       // pointLightsHelpers.push(new THREE.SpotLightHelper(pointLights[n], 5));
@@ -280,11 +247,6 @@ export default function Home() {
 
     let controls = {
       RoomLightArray: RoomLightArray,
-      RoomLight1Color: 0xffdd9e,
-      RoomLight1Intensity: 1.0,
-      RoomLight1PosX: 17.0,
-      RoomLight1PosY: 39.0,
-      RoomLight1PosZ: 15.0,
       myText: "lilGUIだよん",
       myBoolean: true,
       myNumber: 1,
@@ -293,37 +255,6 @@ export default function Home() {
       },
       myDropDowns: "select1",
       myColor: 0xff0000,
-
-      RoomLight0Color: 0xfebe48,
-      RoomLight1Color: 0xffc966,
-      RoomLight2Color: 0xfebe48,
-      RoomLight3Color: 0xffc966,
-      RoomLight4Color: 0xfebe48,
-      RoomLight5Color: 0xffc966,
-      RoomLight0Intensity: 1.3,
-      RoomLight1Intensity: 1.3,
-      RoomLight2Intensity: 1.3,
-      RoomLight3Intensity: 1.3,
-      RoomLight4Intensity: 1.3,
-      RoomLight5Intensity: 1.3,
-      RoomLight0PosX: 17,
-      RoomLight1PosX: 0,
-      RoomLight2PosX: -17,
-      RoomLight3PosX: 17,
-      RoomLight4PosX: 0,
-      RoomLight5PosX: -17,
-      RoomLight0PosY: 50,
-      RoomLight1PosY: 50,
-      RoomLight2PosY: 50,
-      RoomLight3PosY: 50,
-      RoomLight4PosY: 50,
-      RoomLight5PosY: 50,
-      RoomLight0PosZ: -15.0,
-      RoomLight1PosZ: -15.0,
-      RoomLight2PosZ: -15.0,
-      RoomLight3PosZ: 15.0,
-      RoomLight4PosZ: 15.0,
-      RoomLight5PosZ: 15.0,
     };
 
     let gui = new GUI();
@@ -335,49 +266,14 @@ export default function Home() {
     folder.add(controls, "myFunction");
     folder.add(controls, "myDropDowns", { Slow: 0.1, Normal: 1, Fast: 5 });
     folder.addColor(controls, "myColor");
-    const folderArray = [6];
-    for (let n = 0; n < 6; n++) {
-      folderArray[n] = gui.addFolder(capitalize(`${RoomLightArray[n].name}`));
-      folderArray[n].close();
-      // console.log(folderArray[n]);
-      folderArray[n].addColor(controls, `${RoomLightArray[n].name}Color`);
-      folderArray[n].add(
-        controls,
-        `${RoomLightArray[n].name}Intensity`,
-        0,
-        1,
-        0.1
-      );
-      folderArray[n].add(
-        controls,
-        `${RoomLightArray[n].name}PosX`,
-        -50.0,
-        50.0,
-        0.1
-      );
-      folderArray[n].add(
-        controls,
-        `${RoomLightArray[n].name}PosY`,
-        -50.0,
-        50.0,
-        0.1
-      );
-      folderArray[n].add(
-        controls,
-        `${RoomLightArray[n].name}PosZ`,
-        -50.0,
-        50.0,
-        0.1
-      );
-    }
-    function capitalize(str) {
-      if (typeof str !== "string" || !str) return str;
-      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-    }
-
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
-    render();
 
+    render();
+    /** =================================================
+     *
+     * render
+     * 
+    ===================================================*/
     function render() {
       stats.update();
       orbitControl.instance.update(orbitControler.delta);
@@ -403,11 +299,10 @@ export default function Home() {
       });
 
       for (let n = 0; n < 6; n++) {
-        pointLights[n].color.setHex(controls[eval(`"RoomLight${n}Color"`)]);
-        pointLights[n].intensity = controls[eval(`"RoomLight${n}Intensity"`)];
-        pointLights[n].position.x = controls[eval(`"RoomLight${n}PosX"`)];
-        pointLights[n].position.y = controls[eval(`"RoomLight${n}PosY"`)];
-        pointLights[n].position.z = controls[eval(`"RoomLight${n}PosZ"`)];
+        pointLights[n].intensity = 2;
+        pointLights[n].position.x = 100;
+        pointLights[n].position.y = 100;
+        pointLights[n].position.z = 100;
         scene.add(pointLights[n]);
       }
 
@@ -417,17 +312,6 @@ export default function Home() {
 
     window.addEventListener("click", onPointerMove);
 
-    function initStats() {
-      let stats = new Stats();
-      stats.setMode(0);
-
-      stats.domElement.style.position = "absolute";
-      stats.domElement.style.left = "0px";
-      stats.domElement.style.ltop = "0px";
-      document.getElementById("Stats-output").appendChild(stats.domElement);
-
-      return stats;
-    }
     window.addEventListener("resize", onResize, false);
 
     function onResize() {
@@ -456,7 +340,28 @@ export default function Home() {
         }
       }
     }
+    /** =================================================
+     *
+     * statsの初期化
+     * 
+    ===================================================*/
+    function initStats() {
+      let stats = new Stats();
+      stats.setMode(0);
 
+      stats.domElement.style.position = "absolute";
+      stats.domElement.style.left = "0px";
+      stats.domElement.style.ltop = "0px";
+      document.getElementById("Stats-output").appendChild(stats.domElement);
+
+      return stats;
+    }
+
+    /** =================================================
+     *
+     * マウスカーソルをトラッキングし好きなカーソルアイコンにする 
+     * 
+    ===================================================*/
     window.addEventListener("mousemove", mouseMoveFunc);
     function mouseMoveFunc(e) {
       returnHoverObj(e);
@@ -476,7 +381,6 @@ export default function Home() {
       objs.current = ray.intersectObjects(scene.children);
     }
     function cursorControl(e) {
-      // console.log(e.clientX);
       cursor.style.transform = `translate(${e.clientX}px,${e.clientY}px)`;
     }
   }, []);
