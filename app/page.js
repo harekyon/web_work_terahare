@@ -27,6 +27,8 @@ import { exportGltf } from "@/Modules/tools.js";
 import { simpleAnnotation } from "@/Modules/annotation.js";
 import * as Tools from "../Modules/tools.js";
 import { gsap } from "gsap";
+import Errorpop from "@/components/Errorpop";
+import { css } from "@emotion/react";
 
 // import styles from "./ExtractPzlData.module.scss";
 
@@ -40,17 +42,20 @@ export default function Page() {
   //objs: returnHoverObj関数で使用。hoverしたMeshを返してくれる
   const objs = useRef("");
   const [section, setSection] = useState(0);
-  let camera = new THREE.PerspectiveCamera();
+  let camera = new THREE.PerspectiveCamera(
+    45,
+    globalThis.innerWidth / globalThis.innerHeight,
+    0.1,
+    1000
+  );
+
   useEffect(() => {
     const cursor = document.getElementById("cursor");
     let stats = initStats();
     let scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x000000, 50, 2000);
 
-    camera.fov = 45;
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.near = 0.1;
-    camera.far = 1000;
+    // cameraInit();
 
     camera.position.x = -0;
     camera.position.y = 9;
@@ -68,8 +73,8 @@ export default function Page() {
     renderer.domElement.id = "main-canvas";
 
     let intersectObjects = [];
-    let orbitControl = orbitControler(camera, renderer);
-    cameraControler(camera);
+    // let orbitControl = orbitControler(camera, renderer);
+    // cameraControler(camera);
     let axes = new THREE.AxesHelper(10);
     scene.add(axes);
 
@@ -263,10 +268,10 @@ export default function Page() {
      * 
     ===================================================*/
     render();
+
     function render() {
-      // console.log(camera.up);
       stats.update();
-      orbitControl.instance.update(orbitControler.delta);
+      // orbitControl.instance.update(orbitControler.delta);
       plane.update(Date.now());
       plane.quaternion.copy(camera.quaternion);
       selectObjectText.update(sel.current);
@@ -383,6 +388,7 @@ export default function Page() {
       </>
     );
   };
+  const [isClickStartButton, setIsClickStartButton] = useState(false);
   return (
     <>
       <div id="section0" className="welcome-section">
@@ -396,16 +402,53 @@ export default function Page() {
             setTimeout(() => {
               sectionDom.style.display = "none";
             }, 1000);
+            setIsClickStartButton(true);
           }}
           className="welcome-section__start"
         >
           START
         </button>
       </div>
-      <div
-        id="errorTransitionSection"
-        className="error-transition-section"
-      ></div>
+      <div id="errorTransitionSection" className="error-transition-section">
+        {isClickStartButton ? (
+          <>
+            <Errorpop
+              posX={"20%"}
+              posY={"20%"}
+              width={"600px"}
+              cssOverrides={css`
+                animation-delay: 100ms;
+              `}
+            />
+            <Errorpop
+              posX={"25%"}
+              posY={"80%"}
+              width={"500px"}
+              cssOverrides={css`
+                animation-delay: 200ms;
+              `}
+            />
+            <Errorpop
+              posX={"70%"}
+              posY={"10%"}
+              width={"600px"}
+              cssOverrides={css`
+                animation-delay: 150ms;
+              `}
+            />
+            <Errorpop
+              posX={"80%"}
+              posY={"70%"}
+              width={"300px"}
+              cssOverrides={css`
+                animation-delay: 300ms;
+              `}
+            />
+          </>
+        ) : (
+          <></>
+        )}
+      </div>
 
       <div id="Stats-output"></div>
       <div id="WebGL-output"></div>

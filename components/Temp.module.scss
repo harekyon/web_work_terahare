@@ -1,0 +1,9 @@
+@use "./_var.module";
+.error-pop {
+  &--wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: red;
+  }
+}
