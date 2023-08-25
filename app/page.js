@@ -53,7 +53,8 @@ export default function Page() {
     const cursor = document.getElementById("cursor");
     let stats = initStats();
     let scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x000000, 50, 2000);
+    scene.fog = new THREE.Fog(0x111122, 50, 2000);
+    scene.background = new THREE.Color(0x111122);
 
     // cameraInit();
 
@@ -78,51 +79,74 @@ export default function Page() {
     let axes = new THREE.AxesHelper(10);
     scene.add(axes);
 
-    let planeGeometry = new THREE.PlaneGeometry(42, 42, 1, 1);
-    let textureLoader = new THREE.TextureLoader();
-    let floorTex = {
-      texDiff: textureLoader.load(
-        "/laminate_floor_03_2k/textures/laminate_floor_03_diff_2k.jpg"
-      ),
-      texAo: textureLoader.load(
-        "/laminate_floor_03_2k/textures/laminate_floor_03_ao_2k.jpg"
-      ),
-      texNormal: textureLoader.load(
-        "/laminate_floor_03_2k/textures/laminate_floor_03_nor_dx_2k.jpg"
-      ),
-      texRough: textureLoader.load(
-        "/laminate_floor_03_2k/textures/laminate_floor_03_rough_2k.jpg"
-      ),
-    };
-    floorTex.texDiff.wrapS = THREE.RepeatWrapping;
-    floorTex.texDiff.wrapT = THREE.RepeatWrapping;
-    floorTex.texDiff.repeat = new THREE.Vector2(2, 2);
-    floorTex.texDiff.rotation = -0.5 * Math.PI;
-    Tools.autoInitTexture(floorTex.texDiff);
-    Tools.autoInitTexture(floorTex.texAo);
-    Tools.autoInitTexture(floorTex.texNormal);
-    Tools.autoInitTexture(floorTex.texRough);
-
-    let floorMaterials = new THREE.MeshStandardMaterial({
-      map: floorTex.texDiff,
-      normalMap: floorTex.texNormal,
-      normalScale: new THREE.Vector2(1, -1),
-      aoMap: floorTex.texAo,
-      displacementMap: floorTex.texDisp,
-      roughnessMap: floorTex.texRough,
+    let groundObj = exportGltf({
+      glbPath: mode === "PRODUCT" ? "/threePractice/table.glb" : "/ground.glb",
     });
+    let s1_pointLight1 = new THREE.PointLight(0x887788);
+    let s1_pointLight1Helpers = new THREE.PointLightHelper(s1_pointLight1);
+    let s1_pointLight2 = new THREE.PointLight(0x887788);
+    let s1_pointLight2Helpers = new THREE.PointLightHelper(s1_pointLight2);
+    const startSection = () => {
+      groundObj.rotation.y = calcRadian(90);
+      groundObj.position.y = 0.2;
+      groundObj.receiveShadow = true;
+      scene.add(groundObj);
+      s1_pointLight1.position.set(-30, 5, -10);
+      s1_pointLight1.intensity = 20;
+      // scene.add(s1_pointLight1);
+      // scene.add(s1_pointLight1Helpers);
+      s1_pointLight2.position.set(30, 5, 20);
+      s1_pointLight2.intensity = 20;
+      // scene.add(s1_pointLight2);
+      // scene.add(s1_pointLight2Helpers);
+    };
+    startSection();
 
-    let floor = new THREE.Mesh(planeGeometry, floorMaterials);
-    floor.receiveShadow = true;
-    floor.rotation.x = -0.5 * Math.PI;
-    floor.position.x = 0;
-    floor.position.y = -10;
-    floor.position.z = 0;
-    floor.name = "floor";
-    floor.castShadow = true;
-    floor.receiveShadow = true;
-    scene.add(floor);
-    intersectObjects.push(floor);
+    // let planeGeometry = new THREE.PlaneGeometry(42, 42, 1, 1);
+    // let textureLoader = new THREE.TextureLoader();
+    // let floorTex = {
+    //   texDiff: textureLoader.load(
+    //     "/laminate_floor_03_2k/textures/laminate_floor_03_diff_2k.jpg"
+    //   ),
+    //   texAo: textureLoader.load(
+    //     "/laminate_floor_03_2k/textures/laminate_floor_03_ao_2k.jpg"
+    //   ),
+    //   texNormal: textureLoader.load(
+    //     "/laminate_floor_03_2k/textures/laminate_floor_03_nor_dx_2k.jpg"
+    //   ),
+    //   texRough: textureLoader.load(
+    //     "/laminate_floor_03_2k/textures/laminate_floor_03_rough_2k.jpg"
+    //   ),
+    // };
+    // floorTex.texDiff.wrapS = THREE.RepeatWrapping;
+    // floorTex.texDiff.wrapT = THREE.RepeatWrapping;
+    // floorTex.texDiff.repeat = new THREE.Vector2(2, 2);
+    // floorTex.texDiff.rotation = -0.5 * Math.PI;
+    // Tools.autoInitTexture(floorTex.texDiff);
+    // Tools.autoInitTexture(floorTex.texAo);
+    // Tools.autoInitTexture(floorTex.texNormal);
+    // Tools.autoInitTexture(floorTex.texRough);
+
+    // let floorMaterials = new THREE.MeshStandardMaterial({
+    //   map: floorTex.texDiff,
+    //   normalMap: floorTex.texNormal,
+    //   normalScale: new THREE.Vector2(1, -1),
+    //   aoMap: floorTex.texAo,
+    //   displacementMap: floorTex.texDisp,
+    //   roughnessMap: floorTex.texRough,
+    // });
+
+    // let floor = new THREE.Mesh(planeGeometry, floorMaterials);
+    // floor.receiveShadow = true;
+    // floor.rotation.x = -0.5 * Math.PI;
+    // floor.position.x = 0;
+    // floor.position.y = -10;
+    // floor.position.z = 0;
+    // floor.name = "floor";
+    // floor.castShadow = true;
+    // floor.receiveShadow = true;
+    // scene.add(floor);
+    // intersectObjects.push(floor);
 
     let plane = textToTextureConvertReturnMesh();
     plane.position.y = 5;
@@ -212,35 +236,34 @@ export default function Page() {
       }
     );
 
-    let RoomLightArray = [];
-    for (let n = 0; n < 6; n++) {
-      RoomLightArray.push({
-        name: `RoomLight${n}`,
-        color: 0xffdd9e,
-        intensity: 1.0,
-        posX: 0,
-        posY: 0,
-        posZ: 0,
-      });
-    }
-    let ambientLight = new THREE.AmbientLight(0x444444);
-    scene.add(ambientLight);
+    // let RoomLightArray = [];
+    // for (let n = 0; n < 6; n++) {
+    //   RoomLightArray.push({
+    //     name: `RoomLight${n}`,
+    //     color: 0xffdd9e,
+    //     intensity: 1.0,
+    //     posX: 0,
+    //     posY: 0,
+    //     posZ: 0,
+    //   });
+    // }
+    // let ambientLight = new THREE.AmbientLight(0x444444);
+    // scene.add(ambientLight);
 
-    let pointLights = [];
-    for (let n = 0; n < 6; n++) {
-      pointLights.push(new THREE.SpotLight(0x887788));
-      // pointLightsHelpers.push(new THREE.SpotLightHelper(pointLights[n], 5));
-      pointLights[n].penumbra = 0.8;
-      pointLights[n].angle = 0.9;
-      pointLights[n].castShadow = true;
-      pointLights[n].shadowMapWidth = 2048;
-      pointLights[n].shadowMapHeight = 2048;
-      pointLights[n].shadow.radius = 3;
-      scene.add(pointLights[n]);
-    }
+    // let pointLights = [];
+    // for (let n = 0; n < 6; n++) {
+    //   pointLights.push(new THREE.SpotLight(0x887788));
+    //   // s1_pointLight1Helpers.push(new THREE.SpotLightHelper(pointLights[n], 5));
+    //   pointLights[n].penumbra = 0.8;
+    //   pointLights[n].angle = 0.9;
+    //   pointLights[n].castShadow = true;
+    //   pointLights[n].shadowMapWidth = 2048;
+    //   pointLights[n].shadowMapHeight = 2048;
+    //   pointLights[n].shadow.radius = 3;
+    //   scene.add(pointLights[n]);
+    // }
 
     let controls = {
-      RoomLightArray: RoomLightArray,
       myText: "lilGUIだよん",
       myBoolean: true,
       myNumber: 1,
@@ -293,13 +316,13 @@ export default function Page() {
         addTextAbs: "クリックでパーティクルを表示する",
       });
 
-      for (let n = 0; n < 6; n++) {
-        pointLights[n].intensity = 2;
-        pointLights[n].position.x = 100;
-        pointLights[n].position.y = 100;
-        pointLights[n].position.z = 100;
-        scene.add(pointLights[n]);
-      }
+      // for (let n = 0; n < 6; n++) {
+      //   pointLights[n].intensity = 2;
+      //   pointLights[n].position.x = 100;
+      //   pointLights[n].position.y = 100;
+      //   pointLights[n].position.z = 100;
+      //   scene.add(pointLights[n]);
+      // }
 
       requestAnimationFrame(render);
       renderer.render(scene, camera);
