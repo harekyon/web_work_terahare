@@ -80,6 +80,7 @@ export default function Page() {
       run: { weight: 0 },
     };
     const additiveActions = {
+      harekyon: { weight: 0 },
       sneak_pose: { weight: 0 },
       sad_pose: { weight: 0 },
       agree: { weight: 0 },
@@ -124,7 +125,7 @@ export default function Page() {
 
       const loader = new GLTFLoader();
       // loader.load("/hito2.glb", function (gltf) {
-      loader.load("/Xbot2.glb", function (gltf) {
+      loader.load("/Xbot0.glb", function (gltf) {
         model = gltf.scene;
         scene.add(model);
 
@@ -144,12 +145,14 @@ export default function Page() {
         for (let i = 0; i !== numAnimations; ++i) {
           let clip = animations[i];
           const name = clip.name;
-
+          console.log(mixer.clipAction(clip));
+          console.log(baseActions[name]);
           if (baseActions[name]) {
             const action = mixer.clipAction(clip);
             activateAction(action);
             baseActions[name].action = action;
             allActions.push(action);
+            // console.log(action);
           } else if (additiveActions[name]) {
             // Make the clip additive and remove the reference frame
 
@@ -157,10 +160,12 @@ export default function Page() {
 
             if (clip.name.endsWith("_pose")) {
               clip = THREE.AnimationUtils.subclip(clip, clip.name, 2, 3, 30);
+              // console.log(clip);
             }
 
             const action = mixer.clipAction(clip);
             activateAction(action);
+
             additiveActions[name].action = action;
             allActions.push(action);
           }
@@ -266,7 +271,6 @@ export default function Page() {
     }
 
     function activateAction(action) {
-      console.log(action);
       const clip = action.getClip();
       const settings = baseActions[clip.name] || additiveActions[clip.name];
       setWeight(action, settings.weight);
@@ -366,7 +370,7 @@ export default function Page() {
 
       for (let i = 0; i !== numAnimations; ++i) {
         const action = allActions[i];
-        console.log(numAnimations);
+        // console.log(allActions);
         const clip = action.getClip();
         const settings = baseActions[clip.name] || additiveActions[clip.name];
         settings.weight = action.getEffectiveWeight();
