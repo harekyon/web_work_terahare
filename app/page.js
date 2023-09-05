@@ -98,11 +98,11 @@ export default function Page() {
       scene.background = new THREE.Color(0xa0a0a0);
       scene.fog = new THREE.Fog(0xa0a0a0, 10, 50);
 
-      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 3);
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 1);
       hemiLight.position.set(0, 20, 0);
       scene.add(hemiLight);
 
-      const dirLight = new THREE.DirectionalLight(0xffffff, 3);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1);
       dirLight.position.set(3, 10, 10);
       dirLight.castShadow = true;
       dirLight.shadow.camera.top = 2;
@@ -125,7 +125,7 @@ export default function Page() {
 
       const loader = new GLTFLoader();
       // loader.load("/hito2.glb", function (gltf) {
-      loader.load("/Xbot0.glb", function (gltf) {
+      loader.load("/charactor_/tera_anim1.glb", function (gltf) {
         model = gltf.scene;
         scene.add(model);
 
@@ -394,7 +394,7 @@ export default function Page() {
   return (
     <>
       <div id="section0" className="welcome-section">
-        <button
+        {/* <button
           onClick={() => {
             gsap.to(camera.position, { y: 100, duration: 5 });
             // camera.lookAt(chairWhite);
@@ -409,7 +409,7 @@ export default function Page() {
           className="welcome-section__start"
         >
           START
-        </button>
+        </button> */}
       </div>
       <div id="errorTransitionSection" className="error-transition-section">
         {isClickStartButton ? (
