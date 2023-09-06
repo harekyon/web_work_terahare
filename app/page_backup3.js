@@ -261,33 +261,6 @@ export default function Page() {
       }
     );
 
-    // let RoomLightArray = [];
-    // for (let n = 0; n < 6; n++) {
-    //   RoomLightArray.push({
-    //     name: `RoomLight${n}`,
-    //     color: 0xffdd9e,
-    //     intensity: 1.0,
-    //     posX: 0,
-    //     posY: 0,
-    //     posZ: 0,
-    //   });
-    // }
-    // let ambientLight = new THREE.AmbientLight(0x444444);
-    // scene.add(ambientLight);
-
-    // let pointLights = [];
-    // for (let n = 0; n < 6; n++) {
-    //   pointLights.push(new THREE.SpotLight(0x887788));
-    //   // s1_pointLight1Helpers.push(new THREE.SpotLightHelper(pointLights[n], 5));
-    //   pointLights[n].penumbra = 0.8;
-    //   pointLights[n].angle = 0.9;
-    //   pointLights[n].castShadow = true;
-    //   pointLights[n].shadowMapWidth = 2048;
-    //   pointLights[n].shadowMapHeight = 2048;
-    //   pointLights[n].shadow.radius = 3;
-    //   scene.add(pointLights[n]);
-    // }
-
     let controls = {
       myText: "lilGUIだよん",
       myBoolean: true,
