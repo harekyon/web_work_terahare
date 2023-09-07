@@ -88,18 +88,20 @@ export default function Page() {
     camera.position.z = 65;
     scene.add(camera);
     // THREE.Renderer設定
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor(new THREE.Color(0x000000));
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.toneMapping = THREE.ReinhardToneMapping;
     renderer.toneMappingExposure = 0.2;
     renderer.domElement.id = "main-canvas";
+    clock = new THREE.Clock();
     //以上3つをpublicObjectとする
     let publicObject = {
       camera: camera,
       scene: scene,
       renderer: renderer,
+      clock: clock,
     };
     // THREE.Helper系
     function helperFunction() {
@@ -130,7 +132,8 @@ export default function Page() {
      * section0 [テスト画面]
      * 
     ===================================================*/
-    section0Process({ ...publicObject }, "/charactor_/tera_anim1.glb");
+    section0Process({ ...publicObject }, "/charactor_/tera_anim2addIdle.glb");
+    // section0Process({ ...publicObject }, "/charactor_/Xbot.glb");
 
     /** =================================================
      *
