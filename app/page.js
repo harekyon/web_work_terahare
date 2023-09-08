@@ -24,6 +24,10 @@ import {
   section0Process,
   section0RenderAnimation,
 } from "@/stage/section0Preset";
+import { charactor_anim, charactor_init } from "@/Objects/Charactor";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { cameraControler } from "@/Modules/cameraControler";
+import { orbitControler } from "@/Modules/orbitControler";
 
 export default function Page() {
   const loader = new GLTFLoader();
@@ -32,6 +36,7 @@ export default function Page() {
   //objs: returnHoverObj関数で使用。hoverしたMeshを返してくれる
   const [section, setSection] = useState(0);
 
+  let orbitControl;
   //World共通のthreeオブジェクト
   let scene, renderer, camera, stats;
   let model, skeleton, mixer, clock;
@@ -103,6 +108,11 @@ export default function Page() {
       renderer: renderer,
       clock: clock,
     };
+    //カメラ操作
+
+    orbitControl = new OrbitControls(camera, renderer.domElement);
+
+    // orbitControl.update();
     // THREE.Helper系
     function helperFunction() {
       let axes = new THREE.AxesHelper(10);
@@ -117,7 +127,6 @@ export default function Page() {
         let hdrImg = new THREE.MeshStandardMaterial({ map: texture });
         hdrImg.envMapIntensity = 0.1;
         hdrImg.envMap = texture;
-        console.log(hdrImg);
         hdrImg.map.mapping = THREE.EquirectangularReflectionMapping;
         let aaaa = texture;
         aaaa.repeat.set(0.5, 0.5);
@@ -126,6 +135,13 @@ export default function Page() {
     );
 
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
+
+    /** =================================================
+     *
+     * charactor
+     * 
+    ===================================================*/
+    charactor_init({ ...publicObject }, "/charactor_/tera_anim2addIdle.glb");
 
     /** =================================================
      *
@@ -140,15 +156,14 @@ export default function Page() {
      * render
      * 
     ===================================================*/
-    render();
-
     function render() {
       stats.update();
-
+      charactor_anim({ ...publicObject });
       section0RenderAnimation({ controls, publicObject });
       requestAnimationFrame(render);
       renderer.render(scene, camera);
     }
+    render();
 
     /** =================================================
      *
@@ -185,17 +200,17 @@ export default function Page() {
     ===================================================*/
     window.addEventListener("mousemove", mouseMoveFunc);
     function mouseMoveFunc(e) {
-      cursorControl(e);
+      // cursorControl(e);
     }
     function cursorControl(e) {
-      cursor.style.transform = `translate(calc(${e.clientX}px - 15px), calc(${e.clientY}px - 15px))`;
+      // cursor.style.transform = `translate(calc(${e.clientX}px - 15px), calc(${e.clientY}px - 15px))`;
     }
   }, []);
 
   const [isClickStartButton, setIsClickStartButton] = useState(false);
   return (
     <>
-      <div id="section0" className="welcome-section">
+      {/* <div id="section0" className="welcome-section">
         <button
           onClick={() => {
             gsap.to(camera.position, { y: 100, duration: 5 });
@@ -212,8 +227,8 @@ export default function Page() {
         >
           START
         </button>
-      </div>
-      <div id="errorTransitionSection" className="error-transition-section">
+      </div> */}
+      {/* <div id="errorTransitionSection" className="error-transition-section">
         {isClickStartButton ? (
           <>
             <Errorpop
@@ -252,11 +267,11 @@ export default function Page() {
         ) : (
           <></>
         )}
-      </div>
+      </div> */}
 
       <div id="Stats-output"></div>
       <div id="WebGL-output"></div>
-      <div id="cursor" className="cursor"></div>
+      {/* <div id="cursor" className="cursor"></div> */}
     </>
   );
 }

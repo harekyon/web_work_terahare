@@ -22,7 +22,6 @@ export function section0Process(publicObject, glb) {
   publicObject.scene.add(s1_pointLight2Helpers);
   ambientLight.intensity = 10;
   ambientLight.position.set(10, 10, 10);
-  charactor_init(publicObject, glb);
 
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 100),
@@ -45,5 +44,4 @@ export function section0RenderAnimation({ controls, publicObject }) {
     controls.light2PosY,
     controls.light2PosZ
   );
-  charactor_anim({ ...publicObject });
 }

@@ -18,7 +18,7 @@
 html,
 body,
 a {
-  cursor: none;
+  // cursor: none;
 }
 html,
 body {
@@ -52,7 +52,7 @@ body {
   top: 0;
   left: 0;
   z-index: 100000;
-  pointer-events: none;
+  // pointer-events: none;
 }
 
 .simple-annotation--wrap {

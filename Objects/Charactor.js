@@ -3,6 +3,9 @@ import * as THREE from "three";
 import GUI from "lil-gui";
 
 let model, skeleton, mixer;
+let mx = 0;
+let my = 0;
+let mz = 0;
 const crossFadeControls = [];
 let currentBaseAction = "idle";
 const allActions = [];
@@ -20,8 +23,6 @@ const additiveActions = {
 let panelSettings, numAnimations;
 
 function charactor_init(publicObject, glb) {
-  console.log(glb);
-
   const loader = new GLTFLoader();
   loader.load(`${glb}`, function (gltf) {
     model = gltf.scene;
@@ -35,11 +36,9 @@ function charactor_init(publicObject, glb) {
     const animations = gltf.animations;
     mixer = new THREE.AnimationMixer(model);
     numAnimations = animations.length;
-    console.log(numAnimations);
     for (let i = 0; i !== numAnimations; ++i) {
       let clip = animations[i];
       const name = clip.name;
-      console.log(clip);
       if (baseActions[name]) {
         const action = mixer.clipAction(clip);
         activateAction(action);
@@ -55,6 +54,7 @@ function charactor_init(publicObject, glb) {
         }
 
         const action = mixer.clipAction(clip);
+
         activateAction(action);
         additiveActions[name].action = action;
         allActions.push(action);
@@ -89,6 +89,7 @@ function charactor_init(publicObject, glb) {
         const action = settings ? settings.action : null;
 
         if (currentAction !== action) {
+          console.log(currentAction);
           prepareCrossFade(currentAction, action, 0.35);
         }
       };
@@ -134,10 +135,10 @@ function charactor_init(publicObject, glb) {
     });
   }
   function activateAction(action) {
-    console.log(action);
     const clip = action.getClip();
     const settings = baseActions[clip.name] || additiveActions[clip.name];
     setWeight(action, settings.weight);
+    console.log(action);
     action.play();
   }
   function modifyTimeScale(speed) {
@@ -208,6 +209,18 @@ function charactor_init(publicObject, glb) {
       startAction.fadeOut(duration);
     }
   }
+
+  window.addEventListener("keydown", keydownFunc);
+  function keydownFunc(e) {
+    var key_code = e.keyCode;
+    console.log(key_code);
+    if (key_code === 65) mx = mx - 1;
+    if (key_code === 87) mz = mz + 1;
+    if (key_code === 68) mx = mx + 1;
+    if (key_code === 83) mz = mz - 1;
+    console.log(model.position);
+    model.position.set(mx, my, mz);
+  }
 }
 function charactor_anim(publicObject) {
   //   console.log(allActions);
@@ -222,5 +235,6 @@ function charactor_anim(publicObject) {
     mixer.update(mixerUpdateDelta);
   }
 }
+function selectAnim() {}
 
 export { charactor_init, charactor_anim };
