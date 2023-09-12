@@ -27,11 +27,12 @@ function charactor_init(publicObject, glb) {
   loader.load(`${glb}`, function (gltf) {
     model = gltf.scene;
     publicObject.scene.add(model);
+    //modelの子要素にアクセス
     model.traverse(function (object) {
       if (object.isMesh) object.castShadow = true;
     });
     skeleton = new THREE.SkeletonHelper(model);
-    skeleton.visible = false;
+    skeleton.visible = true;
     publicObject.scene.add(skeleton);
     const animations = gltf.animations;
     mixer = new THREE.AnimationMixer(model);
@@ -90,6 +91,7 @@ function charactor_init(publicObject, glb) {
 
         if (currentAction !== action) {
           console.log(currentAction);
+          console.log(action);
           prepareCrossFade(currentAction, action, 0.35);
         }
       };
@@ -133,6 +135,7 @@ function charactor_init(publicObject, glb) {
         control.setInactive();
       }
     });
+    console.log(crossFadeControls[0]);
   }
   function activateAction(action) {
     const clip = action.getClip();
@@ -212,6 +215,7 @@ function charactor_init(publicObject, glb) {
 
   window.addEventListener("keydown", keydownFunc);
   function keydownFunc(e) {
+    crossFadeControls[crossFadeControls.length - 1].object.run();
     var key_code = e.keyCode;
     console.log(key_code);
     if (key_code === 65) mx = mx - 1;
@@ -220,6 +224,10 @@ function charactor_init(publicObject, glb) {
     if (key_code === 83) mz = mz - 1;
     console.log(model.position);
     model.position.set(mx, my, mz);
+  }
+  window.addEventListener("keyup", keyupFunc);
+  function keyupFunc(e) {
+    crossFadeControls[crossFadeControls.length - 1].object.idle();
   }
 }
 function charactor_anim(publicObject) {
