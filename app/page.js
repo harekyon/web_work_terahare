@@ -24,7 +24,7 @@ import {
   section0Process,
   section0RenderAnimation,
 } from "@/stage/section0Preset";
-import { charactor_anim, charactor_init } from "@/Objects/Charactor";
+import { charactor_init } from "@/Objects/Charactor";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { cameraControler } from "@/Modules/cameraControler";
 import { orbitControler } from "@/Modules/orbitControler";
@@ -158,7 +158,7 @@ export default function Page() {
     ===================================================*/
     function render() {
       stats.update();
-      charactor_anim({ ...publicObject });
+      // charactor_anim({ ...publicObject });
       section0RenderAnimation({ controls, publicObject });
       requestAnimationFrame(render);
       renderer.render(scene, camera);
