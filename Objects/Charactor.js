@@ -22,8 +22,13 @@ const additiveActions = {
 };
 let panelSettings, numAnimations;
 
+let actionStart = "";
+let actionEnd = "";
+let duration = 0.4;
+
 function charactor_init(publicObject, glb) {
   const loader = new GLTFLoader();
+
   loader.load(`${glb}`, function (gltf) {
     model = gltf.scene;
     publicObject.scene.add(model);
@@ -92,13 +97,15 @@ function charactor_init(publicObject, glb) {
         const action = settings ? settings.action : null;
 
         if (currentAction !== action) {
-          console.log(currentAction);
-          console.log(action);
+          // console.log(currentAction);
+          // console.log(action);
           // wasdキーを押すとアニメーションを始める
-          prepareCrossFade(currentAction, action, 0.1);
+          actionStart = currentAction;
+          actionEnd = action;
+          // prepareCrossFade(actionStart, actionEnd, duration);
+          prepareCrossFade();
         }
       };
-
       crossFadeControls.push(folder1.add(panelSettings, name));
       console.log(crossFadeControls);
     }
@@ -151,51 +158,47 @@ function charactor_init(publicObject, glb) {
   function modifyTimeScale(speed) {
     mixer.timeScale = speed;
   }
-  function prepareCrossFade(startAction, endAction, duration) {
+
+  function prepareCrossFade() {
     // If the current action is 'idle', execute the crossfade immediately;
     // else wait until the current action has finished its current loop
     // console.log(endAction);
 
-    // キャラクターアニメーションを実行する場所
     // console.log(startAction);
     // console.log(endAction);
-    // if (currentBaseAction === "idle" || !startAction || !endAction) {
-    //   //
-    //   executeCrossFade(startAction, endAction, duration);
-    // } else {
-    //   synchronizeCrossFade(startAction, endAction, duration);
-    // }
-    if (currentBaseAction === "idle" || !startAction || !endAction) {
-      //
-      executeCrossFade(startAction, endAction, duration);
+    // console.log(startAction);
+    if (currentBaseAction === "idle" || !actionStart || !actionEnd) {
+      actionStart !== "" &&
+        actionEnd !== "" &&
+        executeCrossFade(actionStart, actionEnd, duration);
     } else {
-      synchronizeCrossFade(startAction, endAction, duration);
+      actionStart !== "" && actionEnd !== "" && actionStart.fadeOut(duration);
     }
 
     // Update control colors
 
-    if (endAction) {
-      const clip = endAction.getClip();
+    if (actionEnd) {
+      const clip = actionEnd.getClip();
       currentBaseAction = clip.name;
     } else {
       currentBaseAction = "None";
     }
 
-    crossFadeControls.forEach(function (control) {
-      const name = control.property;
+    // crossFadeControls.forEach(function (control) {
+    //   const name = control.property;
 
-      if (name === currentBaseAction) {
-        control.setActive();
-      } else {
-        control.setInactive();
-      }
-    });
+    //   if (name === currentBaseAction) {
+    //     control.setActive();
+    //   } else {
+    //     control.setInactive();
+    //   }
+    // });
   }
 
+  //2023/10/02 synchroとexecuteの切り替え実装途中
   function synchronizeCrossFade(startAction, endAction, duration) {
     console.log("synchronizeCrossFade");
     mixer.addEventListener("loop", onLoopFinished);
-
     function onLoopFinished(event) {
       if (event.action === startAction) {
         mixer.removeEventListener("loop", onLoopFinished);
@@ -232,12 +235,12 @@ function charactor_init(publicObject, glb) {
   function keydownFunc(e) {
     crossFadeControls[crossFadeControls.length - 1].object.run();
     var key_code = e.keyCode;
-    console.log(key_code);
+    // console.log(key_code);
     if (key_code === 65) mx = mx - 1;
     if (key_code === 87) mz = mz + 1;
     if (key_code === 68) mx = mx + 1;
     if (key_code === 83) mz = mz - 1;
-    console.log(model.position);
+    // console.log(model.position);
     model.position.set(mx, my, mz);
   }
   window.addEventListener("keyup", keyupFunc);
