@@ -41,6 +41,7 @@ function charactor_init(publicObject, glb) {
       let clip = animations[i];
       const name = clip.name;
       if (baseActions[name]) {
+        // console.log(baseActions[name]);
         const action = mixer.clipAction(clip);
         activateAction(action);
         baseActions[name].action = action;
@@ -80,6 +81,7 @@ function charactor_init(publicObject, glb) {
     };
 
     const baseNames = ["None", ...Object.keys(baseActions)];
+    console.log(baseNames);
 
     for (let i = 0, l = baseNames.length; i !== l; ++i) {
       const name = baseNames[i];
@@ -92,11 +94,13 @@ function charactor_init(publicObject, glb) {
         if (currentAction !== action) {
           console.log(currentAction);
           console.log(action);
-          prepareCrossFade(currentAction, action, 0.35);
+          // wasdキーを押すとアニメーションを始める
+          prepareCrossFade(currentAction, action, 0.1);
         }
       };
 
       crossFadeControls.push(folder1.add(panelSettings, name));
+      console.log(crossFadeControls);
     }
 
     for (const name of Object.keys(additiveActions)) {
@@ -150,8 +154,19 @@ function charactor_init(publicObject, glb) {
   function prepareCrossFade(startAction, endAction, duration) {
     // If the current action is 'idle', execute the crossfade immediately;
     // else wait until the current action has finished its current loop
+    // console.log(endAction);
 
+    // キャラクターアニメーションを実行する場所
+    // console.log(startAction);
+    // console.log(endAction);
+    // if (currentBaseAction === "idle" || !startAction || !endAction) {
+    //   //
+    //   executeCrossFade(startAction, endAction, duration);
+    // } else {
+    //   synchronizeCrossFade(startAction, endAction, duration);
+    // }
     if (currentBaseAction === "idle" || !startAction || !endAction) {
+      //
       executeCrossFade(startAction, endAction, duration);
     } else {
       synchronizeCrossFade(startAction, endAction, duration);
@@ -178,12 +193,12 @@ function charactor_init(publicObject, glb) {
   }
 
   function synchronizeCrossFade(startAction, endAction, duration) {
+    console.log("synchronizeCrossFade");
     mixer.addEventListener("loop", onLoopFinished);
 
     function onLoopFinished(event) {
       if (event.action === startAction) {
         mixer.removeEventListener("loop", onLoopFinished);
-
         executeCrossFade(startAction, endAction, duration);
       }
     }
@@ -192,7 +207,7 @@ function charactor_init(publicObject, glb) {
   function executeCrossFade(startAction, endAction, duration) {
     // Not only the start action, but also the end action must get a weight of 1 before fading
     // (concerning the start action this is already guaranteed in this place)
-
+    console.log("executeCrossFade");
     if (endAction) {
       setWeight(endAction, 1);
       endAction.time = 0;
