@@ -14,14 +14,20 @@ export function section0Process(publicObject, glb) {
   publicObject.scene.add(ambientLight);
   s1_pointLight1.position.set(-30, 5, -10);
   s1_pointLight1.intensity = 20;
+  s1_pointLight1.castShadow = true;
+  s1_pointLight1.shadow.mapSize.set(4096, 4096);
   publicObject.scene.add(s1_pointLight1);
   publicObject.scene.add(s1_pointLight1Helpers);
   s1_pointLight2.position.set(30, 5, 20);
   s1_pointLight2.intensity = 20;
+  s1_pointLight2.castShadow = true;
+  s1_pointLight2.shadow.mapSize.set(4096, 4096);
   publicObject.scene.add(s1_pointLight2);
   publicObject.scene.add(s1_pointLight2Helpers);
   ambientLight.intensity = 10;
   ambientLight.position.set(10, 10, 10);
+  ambientLight.castShadow = true;
+  // ambientLight.shadow.mapSize.set(4096, 4096);
 
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 100),

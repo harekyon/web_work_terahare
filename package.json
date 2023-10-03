@@ -14,6 +14,7 @@
     "@react-three/drei": "^9.76.1",
     "@react-three/fiber": "^8.13.3",
     "@react-three/gltfjsx": "^4.3.4",
+    "@tweenjs/tween.js": "^21.0.0",
     "autoprefixer": "10.4.14",
     "dat.gui": "^0.7.9",
     "eslint": "8.42.0",

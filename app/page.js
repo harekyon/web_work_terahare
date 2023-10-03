@@ -61,10 +61,10 @@ export default function Page() {
 
     //stage0
     light1PosX: -41,
-    light1PosY: 14,
-    light1PosZ: -13,
+    light1PosY: 4,
+    light1PosZ: -5,
     light2PosX: 41,
-    light2PosY: 14,
+    light2PosY: 30,
     light2PosZ: -13,
     sceneBgColor: 0x111122,
   };

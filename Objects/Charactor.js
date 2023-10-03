@@ -1,11 +1,9 @@
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as THREE from "three";
 import GUI from "lil-gui";
+import { radiusToDegree } from "./tools";
 
 let model, skeleton, mixer;
-let mx = 0;
-let my = 0;
-let mz = 0;
 const crossFadeControls = [];
 let currentBaseAction = "idle";
 const allActions = [];
@@ -25,6 +23,12 @@ let panelSettings, numAnimations;
 let actionStart = "";
 let actionEnd = "";
 let duration = 0.4;
+
+let characterAnimState = "idle";
+let characterMovement = { direction: 1, axis: "z", rotate: 0 };
+let characterSpeed = 10;
+
+let clock = new THREE.Clock();
 
 function charactor_init(publicObject, glb) {
   const loader = new GLTFLoader();
@@ -86,7 +90,7 @@ function charactor_init(publicObject, glb) {
     };
 
     const baseNames = ["None", ...Object.keys(baseActions)];
-    console.log(baseNames);
+    // console.log(baseNames);
 
     for (let i = 0, l = baseNames.length; i !== l; ++i) {
       const name = baseNames[i];
@@ -164,9 +168,6 @@ function charactor_init(publicObject, glb) {
     // else wait until the current action has finished its current loop
     // console.log(endAction);
 
-    // console.log(startAction);
-    // console.log(endAction);
-    // console.log(startAction);
     if (currentBaseAction === "idle" || !actionStart || !actionEnd) {
       actionStart !== "" &&
         actionEnd !== "" &&
@@ -176,36 +177,25 @@ function charactor_init(publicObject, glb) {
     }
 
     // Update control colors
-
     if (actionEnd) {
       const clip = actionEnd.getClip();
       currentBaseAction = clip.name;
     } else {
       currentBaseAction = "None";
     }
-
-    // crossFadeControls.forEach(function (control) {
-    //   const name = control.property;
-
-    //   if (name === currentBaseAction) {
-    //     control.setActive();
-    //   } else {
-    //     control.setInactive();
-    //   }
-    // });
   }
 
   //2023/10/02 synchroとexecuteの切り替え実装途中
-  function synchronizeCrossFade(startAction, endAction, duration) {
-    console.log("synchronizeCrossFade");
-    mixer.addEventListener("loop", onLoopFinished);
-    function onLoopFinished(event) {
-      if (event.action === startAction) {
-        mixer.removeEventListener("loop", onLoopFinished);
-        executeCrossFade(startAction, endAction, duration);
-      }
-    }
-  }
+  // function synchronizeCrossFade(startAction, endAction, duration) {
+  //   console.log("synchronizeCrossFade");
+  //   mixer.addEventListener("loop", onLoopFinished);
+  //   function onLoopFinished(event) {
+  //     if (event.action === startAction) {
+  //       mixer.removeEventListener("loop", onLoopFinished);
+  //       executeCrossFade(startAction, endAction, duration);
+  //     }
+  //   }
+  // }
 
   function executeCrossFade(startAction, endAction, duration) {
     // Not only the start action, but also the end action must get a weight of 1 before fading
@@ -230,26 +220,45 @@ function charactor_init(publicObject, glb) {
       startAction.fadeOut(duration);
     }
   }
-
   window.addEventListener("keydown", keydownFunc);
   function keydownFunc(e) {
     crossFadeControls[crossFadeControls.length - 1].object.run();
     var key_code = e.keyCode;
     // console.log(key_code);
-    if (key_code === 65) mx = mx - 1;
-    if (key_code === 87) mz = mz + 1;
-    if (key_code === 68) mx = mx + 1;
-    if (key_code === 83) mz = mz - 1;
-    // console.log(model.position);
-    model.position.set(mx, my, mz);
+    if (key_code === 87) {
+      characterAnimState = "run";
+      characterMovement.direction = -1;
+      characterMovement.axis = "z";
+      characterMovement.rotate = -180;
+    }
+    if (key_code === 83) {
+      characterAnimState = "run";
+      characterMovement.direction = 1;
+      characterMovement.axis = "z";
+      characterMovement.rotate = 0;
+    }
+    if (key_code === 65) {
+      characterAnimState = "run";
+      characterMovement.direction = -1;
+      characterMovement.axis = "x";
+      characterMovement.rotate = -90;
+    }
+    if (key_code === 68) {
+      characterAnimState = "run";
+      characterMovement.direction = 1;
+      characterMovement.axis = "x";
+      characterMovement.rotate = 90;
+    }
   }
   window.addEventListener("keyup", keyupFunc);
   function keyupFunc(e) {
     crossFadeControls[crossFadeControls.length - 1].object.idle();
+    characterAnimState = "idle";
   }
 }
+
 function charactor_anim(publicObject) {
-  //   console.log(allActions);
+  let mixerUpdateDelta = clock.getDelta();
   if (allActions.length !== 0) {
     for (let i = 0; i !== numAnimations; ++i) {
       const action = allActions[i];
@@ -259,6 +268,20 @@ function charactor_anim(publicObject) {
     }
     const mixerUpdateDelta = publicObject.clock.getDelta();
     mixer.update(mixerUpdateDelta);
+  }
+  if (model !== undefined) {
+    if (characterAnimState === "run") {
+      const move =
+        characterMovement.direction * characterSpeed * mixerUpdateDelta;
+      if (characterMovement.axis === "z") {
+        model.position.z += move;
+      } else if (characterMovement.axis === "x") {
+        model.position.x += move;
+      }
+      model.rotation.y = radiusToDegree(characterMovement.rotate);
+
+      // console.log(model.rotation.y);
+    }
   }
 }
 function selectAnim() {}
