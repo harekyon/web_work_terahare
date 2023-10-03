@@ -26,7 +26,6 @@ export function section0Process(publicObject, glb) {
   publicObject.scene.add(s1_pointLight2Helpers);
   ambientLight.intensity = 10;
   ambientLight.position.set(10, 10, 10);
-  ambientLight.castShadow = true;
   // ambientLight.shadow.mapSize.set(4096, 4096);
 
   const mesh = new THREE.Mesh(

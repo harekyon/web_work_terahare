@@ -2,6 +2,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as THREE from "three";
 import GUI from "lil-gui";
 import { radiusToDegree } from "./tools";
+import gsap from "gsap";
 
 let model, skeleton, mixer;
 const crossFadeControls = [];
@@ -26,9 +27,15 @@ let duration = 0.4;
 
 let characterAnimState = "idle";
 let characterMovement = { direction: 1, axis: "z", rotate: 0 };
+let nowKeyCode = null;
+let beforeKeyCode = null;
 let characterSpeed = 10;
+let characterRotateAnim = new THREE.Vector3(0, 0, 0);
+let characterRotateIsMounted = false;
 
 let clock = new THREE.Clock();
+
+let aaa = { x: 0, y: 0 };
 
 function charactor_init(publicObject, glb) {
   const loader = new GLTFLoader();
@@ -90,7 +97,6 @@ function charactor_init(publicObject, glb) {
     };
 
     const baseNames = ["None", ...Object.keys(baseActions)];
-    // console.log(baseNames);
 
     for (let i = 0, l = baseNames.length; i !== l; ++i) {
       const name = baseNames[i];
@@ -101,8 +107,6 @@ function charactor_init(publicObject, glb) {
         const action = settings ? settings.action : null;
 
         if (currentAction !== action) {
-          // console.log(currentAction);
-          // console.log(action);
           // wasdキーを押すとアニメーションを始める
           actionStart = currentAction;
           actionEnd = action;
@@ -111,12 +115,10 @@ function charactor_init(publicObject, glb) {
         }
       };
       crossFadeControls.push(folder1.add(panelSettings, name));
-      console.log(crossFadeControls);
     }
 
     for (const name of Object.keys(additiveActions)) {
       const settings = additiveActions[name];
-
       panelSettings[name] = settings.weight;
       folder2
         .add(panelSettings, name, 0.0, 1.0, 0.01)
@@ -139,11 +141,9 @@ function charactor_init(publicObject, glb) {
       control.setInactive = function () {
         control.domElement.classList.add("control-inactive");
       };
-
       control.setActive = function () {
         control.domElement.classList.remove("control-inactive");
       };
-
       const settings = baseActions[control.property];
 
       if (!settings || !settings.weight) {
@@ -224,36 +224,75 @@ function charactor_init(publicObject, glb) {
   function keydownFunc(e) {
     crossFadeControls[crossFadeControls.length - 1].object.run();
     var key_code = e.keyCode;
-    // console.log(key_code);
+    nowKeyCode = key_code;
+    console.log(e);
+    //forward
     if (key_code === 87) {
       characterAnimState = "run";
       characterMovement.direction = -1;
       characterMovement.axis = "z";
       characterMovement.rotate = -180;
+      runRotation();
     }
+    //back
     if (key_code === 83) {
       characterAnimState = "run";
       characterMovement.direction = 1;
       characterMovement.axis = "z";
       characterMovement.rotate = 0;
+      runRotation();
     }
+    //left
     if (key_code === 65) {
       characterAnimState = "run";
       characterMovement.direction = -1;
       characterMovement.axis = "x";
       characterMovement.rotate = -90;
+      runRotation();
+    }
+    //right
+    if (key_code === 68) {
+      characterAnimState = "run";
+      characterMovement.direction = 1;
+      characterMovement.axis = "x";
+      characterMovement.rotate = 90;
+      runRotation();
     }
     if (key_code === 68) {
       characterAnimState = "run";
       characterMovement.direction = 1;
       characterMovement.axis = "x";
       characterMovement.rotate = 90;
+      runRotation();
+    }
+    if (e.code === "ShiftLeft") {
+      console.log("shift! add");
+      characterSpeed = 20;
     }
   }
   window.addEventListener("keyup", keyupFunc);
   function keyupFunc(e) {
+    if (e.code === "ShiftLeft") {
+      console.log("shift! remove");
+      characterSpeed = 10;
+    }
     crossFadeControls[crossFadeControls.length - 1].object.idle();
     characterAnimState = "idle";
+  }
+}
+function runRotation() {
+  if (model !== undefined) {
+    gsap.to(characterRotateAnim, {
+      y: characterMovement.rotate,
+      duration: 0.5,
+      ease: "power1.inOut",
+      onStart: () => {
+        characterRotateIsMounted = true;
+      },
+      onComplete: () => {
+        characterRotateIsMounted = false;
+      },
+    });
   }
 }
 
@@ -271,6 +310,7 @@ function charactor_anim(publicObject) {
   }
   if (model !== undefined) {
     if (characterAnimState === "run") {
+      //
       const move =
         characterMovement.direction * characterSpeed * mixerUpdateDelta;
       if (characterMovement.axis === "z") {
@@ -279,10 +319,26 @@ function charactor_anim(publicObject) {
         model.position.x += move;
       }
       model.rotation.y = radiusToDegree(characterMovement.rotate);
-
-      // console.log(model.rotation.y);
     }
+    if (beforeKeyCode !== nowKeyCode) {
+      console.log(`beforeKeyCode:${beforeKeyCode}, nowKeyCode:${nowKeyCode} `);
+      // if (beforeKeyCode === 87) {
+      //   if (nowKeyCode === 68) {
+      //     characterMovement.rotate += -90;
+      //     console.log("runnnnn");
+      //   }
+      //   nowKeyCode === 65 && (characterMovement.rotate += 180);
+      //   nowKeyCode === 83 && (characterMovement.rotate += -90);
+      //   runRotation();
+      // }
+      // else if(beforeKeyCode===87&&nowKeyCode===68){
+
+      // }
+    }
+    model.rotation.y = radiusToDegree(characterRotateAnim.y);
   }
+  // console.log(characterRotateIsMounted);
+  beforeKeyCode = nowKeyCode;
 }
 function selectAnim() {}
 
